@@ -8,6 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.Net.Http.Headers;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CursoIDP.Cliente
 {
@@ -16,6 +19,7 @@ namespace CursoIDP.Cliente
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         }
 
         public IConfiguration Configuration { get; }
@@ -27,6 +31,13 @@ namespace CursoIDP.Cliente
             services.AddHttpClient("APIClient", client =>
             {
                 client.BaseAddress = new Uri("https://localhost:5001/");
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            });
+
+            services.AddHttpClient("IdentityClient", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5005/");
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
             });
@@ -45,6 +56,13 @@ namespace CursoIDP.Cliente
                     opt.SaveTokens = true;
                     opt.ClientSecret = "UserClientSecret";
                     opt.GetClaimsFromUserInfoEndpoint = true;
+
+                    //opt.ClaimActions.DeleteClaim("given_name");
+                    opt.ClaimActions.DeleteClaims(new string[] {"given_name", "family_name"});
+                    opt.Scope.Add("address");
+                    //opt.ClaimActions.MapUniqueJsonKey("address","address");
+
+
                 });
 
             services.AddControllersWithViews();
