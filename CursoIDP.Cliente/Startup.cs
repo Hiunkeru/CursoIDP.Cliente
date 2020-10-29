@@ -44,6 +44,7 @@ namespace CursoIDP.Cliente
                     opt.ResponseType = OpenIdConnectResponseType.Code;
                     opt.SaveTokens = true;
                     opt.ClientSecret = "UserClientSecret";
+                    opt.GetClaimsFromUserInfoEndpoint = true;
                 });
 
             services.AddControllersWithViews();
